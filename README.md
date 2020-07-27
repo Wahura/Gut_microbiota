@@ -6,9 +6,15 @@ library(dada2)
 
 __loading the fastq files into R__
 ```
-file_path <- "16s_Bacteria"
+file_path <- "stingless_bee"
 list.files(file_path)
 ```
+      ## [1] "10K_DS40_L001_R1_001.fastq.gz"  "10K_DS40_L001_R2_001.fastq.gz" 
+      ## [3] "11K_HA41_L001_R1_001.fastq.gz"  "11K_HA41_L001_R2_001.fastq.gz" 
+      ## [5] "12K_HA42_L001_R1_001.fastq.gz"  "12K_HA42_L001_R2_001.fastq.gz" 
+      ## [7] "13K_HA43_L001_R1_001.fastq.gz"  "13K_HA43_L001_R2_001.fastq.gz" 
+      ## [9] "14K_HA44_L001_R1_001.fastq.gz"  "14K_HA44_L001_R2_001.fastq.gz" 
+      ## [11] "15K_HA45_L001_R1_001.fastq.gz"  "15K_HA45_L001_R2_001.fastq.gz" 
 __sorting the data__
 ```
 dataF <- sort(list.files(file_path, pattern="_R1_001.fastq.gz", full.names = TRUE))
