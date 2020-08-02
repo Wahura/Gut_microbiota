@@ -1,5 +1,5 @@
-# Gut_microbiota
-A repo containing R scripts for the analysis of gut microbiome data from insect sequence data
+# 16S Gut microbiota analysis pipeline using Dada2
+This repo contains an R script that can be used in the analysis of 16S gut microbiome data. The scripts were developed by analysing the gut microbiome data from stingless bees. The 16S data was generated from an illumina platform. The sequences used in developing this  script are paired end reads which have already been demultiplexed but still contain primers. The DADA2 workflow was adopted in this analysis because it is highly sensitive and specific as compared to other OTU picking algorithms, it can resolve single-nucleotide differences from amplicon data and classify them into Amplicon Sequence Variants (ASVs) and it contains an error correction model that helps in improving the quality of reads by helping best infer the original true bilogical sequences present in the data. More about Dada2 can be found in the Dada2 paper https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4927377/, Dada2 tutorial https://benjjneb.github.io/dada2/tutorial.html and the Dada2 manual https://www.bioconductor.org/packages/3.3/bioc/manuals/dada2/man/dada2.pdf.
 ```
 library(dada2)
 ```
