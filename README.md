@@ -237,6 +237,7 @@ rbind(R1_fwd_primer = sapply(fwd_primer_orients, count_primers, filename = rev_c
 
       
 From the cutadapted reads, all the primers in the forward and reverse reads were completely trimmed in the first sample. However the some reverse primers still remained in the forward and reverse reads. From this github issue https://github.com/benjjneb/dada2/issues/675, we find that since the number of reverse primers that have remained are fewer than what was initially present, they would not affect downstream analysis. 
+
   __plotting the quality plots again to determine the length to use while filtering reads__
   ```
   plotQualityProfile(fwd_cut[1:5])
