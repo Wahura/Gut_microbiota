@@ -121,7 +121,7 @@ allOrients <- function(primer) {
 ```
 # creating all the possible orientations using our forward and reverse primers
 fwd_primer_orients <- allOrients(fwd_primer)
-rev_primer_orients <- allOrients(rev_primer)
+rev_primer_orients <- allOrients(rev_primer
 fwd_primer_rev <- as.character(reverseComplement(DNAStringSet(fwd_primer))) # reverse complement of the primers
 rev_primer_rev <- as.character(reverseComplement(DNAStringSet(rev_primer)))
 ```
