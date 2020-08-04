@@ -241,8 +241,13 @@ From the cutadapted reads, all the primers in the forward and reverse reads were
   __plotting the quality plots again to determine the length to use while filtering reads__
   ```
   plotQualityProfile(fwd_cut[1:5])
+  ```
+  ![quality_plot](primer_trimmed_forward_stingless.png)
+  ```
   plotQualityProfile(rev_cut[1:5])
   ```
+  ![quality_plot](primer_trimmed_reverse_stingless.png)
+  
 __Assigning where the filtered data should be stored "filtered" directory__
 ```
 filt.dataF <- file.path(file_path, "filtered", paste0(list.sample.names, "_F_filt.fastq.gz"))
