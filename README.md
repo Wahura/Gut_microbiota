@@ -293,13 +293,34 @@ Since every data has its own unique error profile, learnErrors function in dada2
 __Denoising__
 ```
 dadaF <- dada(filt.dataF, err=errF, multithread=TRUE)
+```
+      Sample 1 - 115628 reads in 10810 unique sequences.
+      Sample 2 - 160148 reads in 15025 unique sequences.
+      Sample 3 - 169970 reads in 11089 unique sequences.
+      Sample 4 - 154615 reads in 10738 unique sequences.
+      Sample 5 - 191037 reads in 14442 unique sequences.
+```
 dadaR <- dada(filt.dataR, err=errR, multithread=TRUE)
 ```
+      Sample 1 - 115628 reads in 15586 unique sequences.
+      Sample 2 - 160148 reads in 24454 unique sequences.
+      Sample 3 - 169970 reads in 23645 unique sequences.
+      Sample 4 - 154615 reads in 20046 unique sequences.
+      Sample 5 - 191037 reads in 24843 unique sequences.
 __inspecting the resulting dada2 class object__
 ```
 dadaF[[1]]
+```
+      dada-class: object describing DADA2 denoising results
+      128 sequence variants were inferred from 10810 input unique sequences.
+      Key parameters: OMEGA_A = 1e-40, OMEGA_C = 1e-40, BAND_SIZE = 16
+```
 dadaR[[1]]
 ```
+      dada-class: object describing DADA2 denoising results
+      85 sequence variants were inferred from 15586 input unique sequences.
+      Key parameters: OMEGA_A = 1e-40, OMEGA_C = 1e-40, BAND_SIZE = 16
+
 __merging the forward and reverse reads__
 ```
 merge.reads <- mergePairs(dadaF, filt.dataF, dadaR, filt.dataR, verbose=FALSE)
