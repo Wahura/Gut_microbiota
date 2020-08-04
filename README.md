@@ -105,7 +105,7 @@ plotQualityProfile(dataF[1:5])
 
 on these plot, the bases are on the X axis while the quality score is on the Y. Faint grey represents a heat map of the frequency of each quality score at each base position. Green shows the mean quality score per base and orange represents the quartiles of the quality score distribution. The forward reads generally usually have high quality bases while the reverse reads have more spurious reads as the sequencing process advances.  This plot also shows that our reads have primers as seen with the decreasing quality at the 5' end of each of the quality plots.
 
-__Removing primers__
+__Primer identification__
 
 ```
 library(ShortRead)
@@ -126,6 +126,7 @@ allOrients <- function(primer) {
   return(sapply(orients, toString))  # Convert back to character vector
 }
 ```
+It is important to confirm all the possible orientations of the primers in the dataset in case one is unsure.
 ```
 # creating all the possible orientations using our forward and reverse primers
 
@@ -139,11 +140,8 @@ rev_primer_orients <- allOrients(rev_primer
               Forward              Complement                 Reverse 
       "GACTACHVGGGTATCTAATCC" "CTGATGDBCCCATAGATTAGG" "CCTAATCTATGGGVHCATCAG" 
                 RevComp 
-      "GGATTAGATACCCBDGTAGTC" 
-```
-fwd_primer_rev <- as.character(reverseComplement(DNAStringSet(fwd_primer))) # reverse complement of the primers
-rev_primer_rev <- as.character(reverseComplement(DNAStringSet(rev_primer)))
-```
+      "GGATTAGATACCCBDGTAGTC"
+
 ```
 # Function for counting the number of reads containing our primer orientations 
 count_primers <- function(primer, filename) {
@@ -151,6 +149,7 @@ count_primers <- function(primer, filename) {
   return(sum(num_hits > 0))
 }
 ```
+This helps in having the actual figure on the number of primers in the dataset while considering their orientation.
 ```
 # counting the sequence strings with primers from our data 
 rbind(R1_fwd_primer = sapply(fwd_primer_orients, count_primers, filename = dataF[[1]]), 
@@ -175,6 +174,10 @@ rbind(R1_fwd_primer = sapply(fwd_primer_orients, count_primers, filename = dataR
       R2_fwd_primer     101        100      99     105
       R1_rev_primer  130595         94      92      91
       R2_rev_primer  130595         94      92      91
+In this dataset it is evident that majority of the forward and reverse primers the FWD primer appears in the forward orientation in the forward reads and in some of the reverse reads in its complement orientation. Similarly, the REV primer is also in its expected orientation. If the reverse primer matches the reverse in their reverse complement orientation, its important to replace the REV with its reverse complement orientation before proceeding.
+
+__Primer trimming__
+Primers here are trimmed using cutadapt. Other possible tools to adopt include trimmomatic. For cutadapt installation and usage guides folloe this link https://cutadapt.readthedocs.io/en/stable/index.html. 
 ```
 #specifying the path to cutadapt on the server
 cutadapt <- "/opt/apps/cutadapt/1.18/bin/cutadapt" # change to the cutadapt path on your machine
