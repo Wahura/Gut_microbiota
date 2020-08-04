@@ -357,4 +357,4 @@ __Taxonomic classification__
 ```
 taxa <- assignTaxonomy(seqtab.nochim, "silva_nr_v138_train_set.fa.gz", multithread=TRUE)
 ```
-The DADA2 package provides a native implementation of the naive Bayesian classifier method for taxonomic assignment. The assignTaxonomy function takes as input a set of sequences to ba classified
+The DADA2 package provides a native implementation of the naive Bayesian classifier method for taxonomic assignment. The assignTaxonomy function takes as input a set of sequences to ba classified. Dada2 provides the silva database for bacteria classification which can be found here http://benjjneb.github.io/dada2/training.html. 
