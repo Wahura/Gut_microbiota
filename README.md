@@ -199,7 +199,7 @@ cut_logs <- path.expand(file.path(cut_dir, paste0(list.sample.names, ".log")))
 # Function specifying the cutadapt functions to be used in this analysis
 cutadapt_args <- c("-g", fwd_primer, "-g", rev_primer_rev, 
                    "-G", rev_primer, "-A", fwd_primer_rev,
-                   "-n", 2, "--discard-untrimmed")
+                   "-n", 2,"-m",1, "-j",32, "--discard-untrimmed") 
 ```
 ```
 # creating a loop over the list of files and running cutadapt on each file.
@@ -258,18 +258,18 @@ names(filt.dataR) <- list.sample.names
 
 __Filtering and trimming data__
 ```
-out <- filterAndTrim(fwd_cut, filt.dataF, rev_cut, filt.dataR, truncLen=c(250,190),
+out <- filterAndTrim(fwd_cut, filt.dataF, rev_cut, filt.dataR, truncLen=c(260,190),
                      maxN=0, maxEE=c(2,5), truncQ=2, rm.phix=TRUE,
                      compress=TRUE, multithread=TRUE)
 head(out)
 ```
-                                     reads.in reads.out
-      10K_DS40_L001_R1_001.fastq.gz   135050    118110
-      11K_HA41_L001_R1_001.fastq.gz   193438    163009
-      12K_HA42_L001_R1_001.fastq.gz   204151    173300
-      13K_HA43_L001_R1_001.fastq.gz   188679    157417
-      14K_HA44_L001_R1_001.fastq.gz   225857    194954
-      15K_HA45_L001_R1_001.fastq.gz   222596    186720
+                                    reads.in reads.out
+      10K_DS40_L001_R1_001.fastq.gz   135050    115628
+      11K_HA41_L001_R1_001.fastq.gz   193435    160148
+      12K_HA42_L001_R1_001.fastq.gz   204147    169970
+      13K_HA43_L001_R1_001.fastq.gz   188679    154615
+      14K_HA44_L001_R1_001.fastq.gz   225857    191037
+      15K_HA45_L001_R1_001.fastq.gz   222596    182823                                    
 This step aids in trimming all low quality reads. The first and the third variables contain the input files which are primer trimmed files. The second and the third hold the file names for the output forward and reverse sequences. __MaxEE__ on the code defines the quality filtering threshold based on the expected errors. In this particular code, all sequences with more than 2 erroneous bases in the forward reads and 5 erroneous reads in the reverse reads are filtered. Ids f the reverse reads in your dataset have better quality you can set __MaxEE (2,2)__. __rm.PhiX__ aids in deleting any read similar to the PHiX bacteriophage. __truncQ = 2__ trims all the bases that appear after the first quality score of 2 it comes across in aread. __MaxN = 0__ removes any sequences containing Ns and __truncLen__ identifies the minimum size to trim the forward and reads to keep the quality scores above 25.
 
 __Establishing the error rates in the data for both the forwards and reverses__
