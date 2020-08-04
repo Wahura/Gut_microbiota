@@ -177,7 +177,8 @@ rbind(R1_fwd_primer = sapply(fwd_primer_orients, count_primers, filename = dataR
 In this dataset it is evident that majority of the forward and reverse primers the FWD primer appears in the forward orientation in the forward reads and in some of the reverse reads in its complement orientation. Similarly, the REV primer is also in its expected orientation. If the reverse primer matches the reverse in their reverse complement orientation, its important to replace the REV with its reverse complement orientation before proceeding.
 
 __Primer trimming__
-Primers here are trimmed using cutadapt. Other possible tools to adopt include trimmomatic. For cutadapt installation and usage guides folloe this link https://cutadapt.readthedocs.io/en/stable/index.html. 
+
+Primers here are trimmed using cutadapt. Other possible tools to adopt include trimmomatic. For cutadapt installation and usage guides folloe this link https://cutadapt.readthedocs.io/en/stable/index.html. After installation, specify the path to cutadapt and confirm its version as a confirmation that you have its rightful path.
 ```
 #specifying the path to cutadapt on the server
 cutadapt <- "/opt/apps/cutadapt/1.18/bin/cutadapt" # change to the cutadapt path on your machine
@@ -194,16 +195,18 @@ rev_cut <- file.path(cut_dir, basename(dataR))
 names(fwd_cut) <- list.sample.names
 names(rev_cut) <- list.sample.names
 ```
-      # function for creating cutadapt trimming log files
- ```
+```
+ # function for creating cutadapt trimming log files
+ 
 cut_logs <- path.expand(file.path(cut_dir, paste0(list.sample.names, ".log")))
 ```
 ```
 # Function specifying the cutadapt functions to be used in this analysis
-cutadapt_args <- c("-g", fwd_primer, "-g", rev_primer_rev, 
+cutadapt_args <- c("-g", fwd_primer, "-a", rev_primer_rev, 
                    "-G", rev_primer, "-A", fwd_primer_rev,
                    "-n", 2,"-m",1, "-j",32, "--discard-untrimmed") 
 ```
+Be keen to specify the orientation of the primers rightfully. Ideally, the forward primers should match the forward reads in their forward orientation and the reverse primers should match the reverse reads in their forward orientation.
 ```
 # creating a loop over the list of files and running cutadapt on each file.
 for (i in seq_along(dataF)) {
@@ -251,6 +254,7 @@ From the cutadapted reads, all the primers in the forward and reverse reads were
   ```
   ![quality_plot](primer_trimmed_reverse_stingless.png)
   
+  Note that unlike our first plot, this plot has a red line on the bottom to show the significant number of reads that were cutadapted.
 __Assigning where the filtered data should be stored "filtered" directory__
 ```
 filt.dataF <- file.path(file_path, "filtered", paste0(list.sample.names, "_F_filt.fastq.gz"))
@@ -261,7 +265,7 @@ names(filt.dataR) <- list.sample.names
 
 __Filtering and trimming data__
 ```
-out <- filterAndTrim(fwd_cut, filt.dataF, rev_cut, filt.dataR, truncLen=c(260,190),
+out <- filterAndTrim(fwd_cut, filt.dataF, rev_cut, filt.dataR, truncLen=c(240,200),
                      maxN=0, maxEE=c(2,5), truncQ=2, rm.phix=TRUE,
                      compress=TRUE, multithread=TRUE)
 head(out)
@@ -353,3 +357,4 @@ __Taxonomic classification__
 ```
 taxa <- assignTaxonomy(seqtab.nochim, "silva_nr_v138_train_set.fa.gz", multithread=TRUE)
 ```
+The DADA2 package provides a native implementation of the naive Bayesian classifier method for taxonomic assignment. The assignTaxonomy function takes as input a set of sequences to ba classified
