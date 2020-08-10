@@ -356,5 +356,275 @@ head(track.nbr.reads)
 __Taxonomic classification__
 ```
 taxa <- assignTaxonomy(seqtab.nochim, "silva_nr_v138_train_set.fa.gz", multithread=TRUE)
+taxa <- addSpecies(taxa, "silva_species_assignment_v132.fa.gz") #classification at species level
+taxa.print <- taxa
+
 ```
 The DADA2 package provides a native implementation of the naive Bayesian classifier method for taxonomic assignment. The assignTaxonomy function takes as input a set of sequences to ba classified. Dada2 provides the silva database for bacteria classification which can be found here http://benjjneb.github.io/dada2/training.html. 
+
+__Defining the rownames for the three table__
+```
+asv_headers <- vector(dim(seqtab.nochim)[2], mode="character")
+
+for (i in 1:dim(seqtab.nochim)[2]) {
+  asv_headers[i] <- paste(">ASV", i, sep="_")
+}
+```
+__Generating a sequence table having the defined row names__
+```
+seqs <- getSequences(seqtab.nochim)
+asv_fasta <- c(rbind(asv_headers, seqs))
+write(asv_fasta, "stingless_ASV.fasta")
+#creating a sequence table dataframe
+names(seqs) <- sub(">", "", asv_headers)
+seqs <- as.data.frame(seqs)
+seqs <- seqs %>% rownames_to_column(var = "OTU")
+```
+
+__Generating a feature table with newly defined row names__
+```
+count_asv_tab <- t(seqtab.nochim)
+row.names(count_asv_tab) <- sub(">", "", asv_headers)
+write.table(count_asv_tab, "ASVs_counts.tsv", sep="\t", quote=F, col.names=NA)
+```
+__Generating a taxonomy table with the newly defined row names__
+```
+rownames(taxa.print) <- gsub(pattern=">", replacement="", x=asv_headers)
+head(taxa.print)
+write.csv(taxa.print, file="ASVs_taxonomy.csv")
+```
+__Converting taxonomy and feature tables to a phyloseq object__
+```
+library(phyloseq)
+TAX = tax_table(taxa.print) #taxonomy table
+OTU = otu_table(count_asv_tab, taxa_are_rows = TRUE) #feature table
+```
+__Reading the sample metadata into R and converting it into a phyloseq object__
+```
+library(dplyr)
+sdata <- read.csv("stingless_bee_sample_metadata.csv", sep = ',', header = TRUE) #Reading the metadata into R
+colnames(sdata) <- c("sample_id", "species")
+sdata1 <- sdata %>% remove_rownames %>% column_to_rownames(var="Sample.id")
+samdata = sample_data(sdata1)
+```
+__creating a phyloseq object__
+```
+physeq = phyloseq(OTU, TAX, samdata)
+physeq
+```
+__filtering the unwanted sequences__
+```
+physeq0 <- subset_taxa(physeq, (Order!="Chloroplast") | is.na(Order))
+ntaxa(physeq0)
+physeq0 <- subset_taxa(physeq0, (Phylum!="Chloroflexi") | is.na(Phylum))
+ntaxa(physeq0)
+physeq0 <- subset_taxa(physeq0, (Family!="Mitochondria") | is.na(Family))
+ntaxa(physeq0)
+physeq0 <- subset_taxa(physeq0, (Kingdom!="Archaea") | is.na(Kingdom))
+ntaxa(physeq0)
+newPhyloObject = subset_samples(physeq0, sample_names(physeq0) != "NC68") #REmoving the negative control
+```
+__Filtering OTUs and taxa with an abundance less than five__
+```
+filtered_physeq <- prune_taxa(taxa_sums(newPhyloObject) > 5, newPhyloObject)
+filtered_physeq
+```
+__creating phyloseq objects for taxa classified and unclassified at the genus level__
+```
+physeq1 <- subset_taxa(filtered_physeq, (is.na(Genus)))
+ntaxa(physeq1)
+physeq2 <- subset_taxa(filtered_physeq, (!is.na(Genus)))
+ntaxa(physeq2)
+```
+__Extracting the filtered taxonomy and feature tables for barplot plotting__
+```
+library(metagMisc)
+tax_table <- phyloseq_to_df(physeq1, addtax = T, addtot = F, addmaxrank = F)
+silva_classified <- phyloseq_to_df(physeq2, addtax = T, addtot = F, addmaxrank = F)
+```
+__merging the genus unclassified taxonomy table to the sequence table__
+```
+library(tidyverse)
+to_blast <- merge(seqs, tax_table, by = 'OTU', all = FALSE)
+to_blast <- to_blast %>% select(OTU, seqs) #Extracting the sequence table
+blast_abundance <- tax_table[,c(1, 9:63)] #Extracting the abundance table
+library(seqRFLP)
+to_blast_dada2_BSF_sequences <- dataframe2fas(to_blast, file = "to_blast_dada2_BSF_sequences.fasta") #converting the sequence table to FASTA format
+```
+__Running blast__
+```
+blastn = "/opt/apps/blast/2.10.0+/bin/blastn"
+blast_db = "16SMicrobial_v4/16SMicrobial"
+input = "to_blast_dada2_BSF_sequences.fasta"
+evalue = 1e-6
+format = 6
+max_target = 1
+
+colnames <- c("qseqid",
+              "sseqid",
+              "evalue",
+              "bitscore",
+              "sgi",
+              "sacc")
+              
+blast_out <- system2("/opt/apps/blast/2.10.0+/bin/blastn", 
+                     args = c("-db", blast_db, 
+                              "-query", input, 
+                              "-outfmt", format, 
+                              "-evalue", evalue,
+                              "-max_target_seqs", max_target,
+                              "-ungapped"),
+                     wait = TRUE,
+                     stdout = TRUE) %>%
+  as_tibble() %>% 
+  separate(col = value, 
+           into = colnames,
+           sep = "\t",
+           convert = TRUE)
+```
+
+__Removing .1-9 string to get the rightful accession numbers__
+```
+blast_out$sacc <- gsub(".[.1-9]$", "", blast_out$sseqid)
+```
+__Filling the full taxonomic classification from the blast results__
+```
+library(taxonomizr)
+sacc <- as.vector(blast_out$sacc)
+taxaId<-accessionToTaxa(sacc,"accessionTaxa.sql",version='base')
+print(taxaId)
+blast_taxa<-getTaxonomy(taxaId,'accessionTaxa.sql', rownames = FALSE)
+print(blast_taxa)
+blast_taxa <- as.data.frame(blast_taxa)
+write.csv(blast_taxa, "blast_taxonomy.csv")
+blast_taxa <- read.csv("blast_taxonomy.csv", sep = ',', header = TRUE)
+blast_taxa$OTU <- blast_out$qseqid
+```
+__Removing the first staxids and making the OTU collumn the first__
+```
+blast_taxa <- subset(blast_taxa, select = -X)
+new_df <-blast_taxa %>%
+  select(OTU, everything())
+  ```
+__checking for the presence of duplicates in the blast output__
+```
+anyDuplicated(new_df$OTU)
+blast_results <- new_df[!duplicated(new_df$OTU),]
+#changing the collumn names
+colnames(blast_results) <- c("OTU", "Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species")
+```
+
+__Merging the blast taxonomic clssification to blast abundance table__
+```
+merged_data <- merge(blast_results, blast_abundance, by = "OTU", all = FALSE)
+#merging the silva classified taxonomy with the blast classified ones
+silva_blast <- as.data.frame(bind_rows(silva_classified, merged_data))
+```
+__Extracting the feature table to use for classification at the genus level__
+```
+Featured_table <- silva_blast[,c(7,9:63)]
+#grouping the data
+group <- Featured_table %>%
+  group_by(Genus)%>%
+  summarise_each(funs(sum), "HA41","HA42","HA43","HA44","HA45","HA46","HA47","HA50","HG56","HG57","LG74","LG75","LG76",
+                 "LG77","LN71","LN72","LN73","MB10","MB1","MB3","MB4","MB5","MB6", "MB7","MB8","MFB16","MFB17","MFB18","MFB19",
+                 "MFB20","MFB26","MFB27","MFB28","MFB29","MFB30","MFR11","MFR12","MFR13","MFR14","MFR15","MFR21","MFR22","MFR23","MFR24",
+                 "MFR25","DS35","DS36","DS37","DS38","DS39","DS40","DS31","DS32","DS33","DS34")
+View (group)
+```
+__Creating multiple dataframes for the different species__
+```
+K_HA <- group[,c(1:9)]
+K_HG <- group[,c(1,10,11)]
+K_LG <-group[,c(1,12:15)]
+K_LN <- group[,c(1,16:18)]
+K_MB <-group[,c(1,19:26)]
+K_MFB <-group[,c(1,27:36)]
+K_MFR <- group[,c(1,37:46)]
+K_DS <-group[,c(1,47:56)]
+```
+```
+K_HA_total <- K_HA %>% adorn_totals(c("col"))
+K_HA_total <- mutate(K_HA_total, K_HA=rowSums(K_HA_total[10])/8)
+K_HA_total <- K_HA_total[,c(1,11)]
+
+K_HG_total <- K_HG %>% adorn_totals(c("col"))
+K_HG_total <- mutate(K_HG_total, K_HG=rowSums(K_HG_total[4])/2)
+K_HG_total <- K_HG_total[,c(1,5)]
+
+K_LG_total <- K_LG %>% adorn_totals(c("col"))
+K_LG_total <- mutate(K_LG_total, K_LG=rowSums(K_LG_total[6])/4)
+K_LG_total <- K_LG_total[,c(1,7)]
+
+K_LN_total <- K_LN %>% adorn_totals(c("col"))
+K_LN_total <- mutate(K_LN_total, K_LN=rowSums(K_LN_total[5])/3)
+K_LN_total <- K_LN_total[,c(1,6)]
+
+K_MB_total <- K_MB %>% adorn_totals(c("col"))
+K_MB_total <- mutate(K_MB_total, K_MB=rowSums(K_MB_total[10])/8)
+K_MB_total <- K_MB_total[,c(1,11)]
+
+K_MFB_total <- K_MFB %>% adorn_totals(c("col"))
+K_MFB_total <- mutate(K_MFB_total, K_MFB=rowSums(K_MFB_total[12])/10)
+K_MFB_total <- K_MFB_total[,c(1,13)]
+
+K_MFR_total <- K_MFR %>% adorn_totals(c("col"))
+K_MFR_total <- mutate(K_MFR_total, K_MFR=rowSums(K_MFR_total[12])/10)
+K_MFR_total <- K_MFR_total[,c(1,13)]
+
+K_DS_total <- K_DS %>% adorn_totals(c("col"))
+K_DS_total <- mutate(K_DS_total, K_DS=rowSums(K_DS_total[12])/10)
+K_DS_total <- K_DS_total[,c(1,13)]
+```
+__Merging the above dataframes__
+```
+merged <- merge(K_HA_total, K_HG_total, by = "Genus", all = TRUE)
+merged <- merge(merged, K_LG_total, by = "Genus", all = TRUE)
+merged <- merge(merged, K_LN_total, by = "Genus", all = TRUE)
+merged <- merge(merged, K_MB_total, by = "Genus", all = TRUE)
+merged <- merge(merged, K_MFB_total, by = "Genus", all = TRUE)
+merged <- merge(merged, K_MFR_total, by = "Genus", all = TRUE)
+merged <- merge(merged, K_DS_total, by = "Genus", all = TRUE)
+```
+__calculating and ordering the genus from the most abundant
+```
+library(janitor)
+cumulation <- merged %>% adorn_totals(c("col"))
+cumulation <- cumulation[order(cumulation$Total, decreasing = TRUE),]
+```
+__specifying the taxa to be tabulated__
+```
+to_represent <- c("Lactobacillus", "Snodgrassella", "Saccharibacter","Bifidobacterium", "Neokomagataea", "	Saccharibacter","Bombella","	Ameyamaea",
+                  "Wolbachia","Nguyenibacter", "Zymobacter", "Acinetobacter", "Gluconacetobacter", "Enterococcus", "Acetobacter", "Alkanindiges", "Chryseobacterium") 
+```
+
+__aggregating the rest of the phyla as others__
+```
+grouped_data <- aggregate(merged[-1], list(Genus = replace(merged$Genus,!(merged$Genus %in% to_represent), "Others")), sum)
+View(grouped_data) 
+```
+__converting the abundance into percentage
+```
+bar <- adorn_percentages(grouped_data, denominator = "col", na.rm = TRUE)
+```
+__Gathering the data__
+```
+bar <- bar %>%
+  gather(value = "abundance", key = "sample_names", -Genus)
+```
+__ordering the data on abundance basis for plotting__
+```
+bar$Genus <- reorder(bar$Genus, bar$abundance)
+bar$Genus <- factor(bar$Genus, levels=rev(levels(bar$Genus)))
+```
+__Choosing the colours to use in the barplot__
+```
+myPalette <- c('#89C5DA', "#DA5724", "#74D944", "#CE50CA", "#3F4921", "#C0717C", "#CBD588", "#5F7FC7", "#673770", "#D3D93E", "#38333E", "#508578", "#D7C1B1", "#689030", "#AD6F3B", "#CD9BCD", "#D14285", "#6DDE88", "#652926", "#7FDCC0", "#C84248", "#8569D5", "#5E738F", "#D1A33D", "#8A7C64", "#599861")
+```
+__plotting the barplot__
+```
+ggplot(bar,aes(x = sample_names, y = abundance))+geom_col(aes(fill = Genus),position = position_stack(reverse = FALSE))+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  scale_fill_manual(values = myPalette)
+```
+
