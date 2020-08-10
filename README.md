@@ -627,4 +627,156 @@ ggplot(bar,aes(x = sample_names, y = abundance))+geom_col(aes(fill = Genus),posi
   theme(axis.text.x = element_text(angle = 90, hjust = 1))+
   scale_fill_manual(values = myPalette)
 ```
+__Beta diversity estimation__
+```
+#Drawing the venn diagrams
+#Removing all genuses with zero hits in the dataframes
+K_HA<- K_HA_total[!(K_HA_total$K_HA == 0),]
+K_HG<- K_HG_total[!(K_HG_total$K_HG == 0),]
+K_LG<- K_LG_total[!(K_LG_total$K_LG == 0),]
+K_LN<- K_LN_total[!(K_LN_total$K_LN == 0),]
+K_MB<- K_MB_total[!(K_MB_total$K_MB == 0),]
+K_MFB <- K_MFB_total[!(K_MFB_total$K_MFB == 0),]
+K_MFR<- K_MFR_total[!(K_MFR_total$K_MFR == 0),]
+K_DS<- K_DS_total[!(K_DS_total$K_DS == 0),]
+```
+__selecting the collumn for plotting the venn diagrams from the dataframe__
+```
+HA <- K_HA %>% select(Genus)
+HG <- K_HG %>% select(Genus)
+LG <- K_LG %>% select(Genus)
+LN <- K_LN %>% select(Genus)
+MB <- K_MB %>% select(Genus)
+MFB<- K_MFB %>% select(Genus)
+MFR<- K_MFR %>% select(Genus)
+DS<- K_DS %>% select(Genus)
+```
+__plotting the venn diagram__
+```
+library(gplots)
+vd <- list(HA, LG, MFB, MFR, DS)
+names(vd) = c("HA", "LG","MFB", "MFR", "DS")
+venn(vd)
+```
 
+__Extracting sequences to be included in the study for plotting phylogenetic trees and converting them to FASTA format__
+```
+seq <- merge(seqs, silva_blast, by = "OTU", all = FALSE)
+seq <- seq %>% select(OTU,seqs)
+phylo_sequences <- dataframe2fas(seq, file = "phylo_sequences.fasta") #converting to FASTA file
+```
+__Reading the FASTA sequences back to R__
+```
+phylo_sequences <- readDNAStringSet("phylo_sequences.fasta")
+names(phylo_sequences)
+```
+__Multiple sequence alignment__
+library(DECIPHER)
+alignment <- AlignSeqs(phylo_sequences, anchor = NA)
+
+__Constructing the phylogenetic tree__
+```
+library(phangorn)
+phang.align <- phyDat(as(alignment, "matrix"), type="DNA")
+dm <- dist.ml(phang.align)
+treeUPGMA <- upgma(dm) #rooted tree
+fit = pml(treeNJ, data=phang.align)
+#fitting the tree using the GTR model
+fitGTR <- update(fit, k=4, inv=0.2) 
+fitGTR <- optim.pml(fitGTR, model="GTR", optInv=TRUE, optGamma=TRUE,
+                    rearrangement = "stochastic", control = pml.control(trace = 0)) 
+#saving the tree and reading it back to R
+saveRDS(fitGTR, "stingless_bee_phangorn_tree.RDS")
+phangorn <- readRDS("stingless_bee_phangorn_tree.RDS")
+#Extracting the tree from the GTR model
+phylo_tree <- phangorn$tree
+phylogenetic_tree <- phy_tree(phylo_tree)
+```
+__PCoA analysis__
+```
+#Extracting the taxonomy and abundance tables from the dataframe named silva blast__
+taxonomy_table <- silva_blast[,c(1:8)] #Extracts all the taxonomic ranks from the dataframe
+features <-silva_blast[,c(1,9:63)] #Extracts all the abundance collumn for the different samples from the dataframe
+```
+__converting the taxonomy and feature tables to a matrix then phyloseq object__
+```
+#taxonomy table
+my_taxonomy <- taxonomy_table %>% remove_rownames %>% column_to_rownames(var="OTU")
+my_taxonomy <- as.matrix(my_taxonomy)
+TAX2= tax_table(my_taxonomy)
+```
+```
+#feature table
+my_feature_table <- features %>% remove_rownames %>% column_to_rownames(var="OTU")
+my_feature_table <- as.matrix(my_feature_table)
+OTU2 = otu_table(my_feature_table, taxa_are_rows = TRUE)
+```
+```
+#creating a phyloseq object
+physeq3 = phyloseq(TAX2, OTU2, samdata,phylogenetic_tree)
+physeq3
+```
+__Normalizing the data__
+```
+total = median(sample_sums(physeq3))#finds median sample read count
+standf = function(x, t=total) round(t * (x / sum(x)))#function to standardize to median sample read count
+standardized_physeq = transform_sample_counts(physeq3, standf)#apply to phyloseq object
+ntaxa(standardized_physeq)
+sample_sums(standardized_physeq)
+```
+__ordinating the phyloseq object__
+```
+library(vegan)
+ordu = ordinate(physeq3, "PCoA", "unifrac", weighted=TRUE) #weighted unifrac
+plot_ordination(physeq3, ordu, color="species")+ geom_point(size=2) +
+  scale_color_manual(values = myPalette)
+  
+ordu = ordinate(physeq3, "PCoA", "unifrac", weighted=FALSE) #unweighted unifrac
+plot_ordination(physeq3, ordu, color="species")+ geom_point(size=2) +
+  scale_color_manual(values = myPalette)
+  
+ordu = ordinate(physeq3, "PCoA", "bray")
+plot_ordination(physeq3, ordu, color="species")+ geom_point(size=2) +
+  scale_color_manual(values = myPalette)
+```
+__Alpha diversity estimation__
+```
+physeq4 <- phyloseq(TAX2, OTU2, samdata, phylogenetic_tree)
+reads <- sample_sums(physeq4) #total read counts in the samples
+reads
+
+summary(sample_sums(physeq4))
+
+library(microbiome)
+#Extracting the otu table from the phyloseq object and plotting the rarefaction curve
+otu_tab <- t(abundances(physeq4))
+p <- vegan::rarecurve(otu_tab, 
+                      step = 50, label = FALSE, 
+                      sample = min(rowSums(otu_tab), 
+                                   col = "blue", cex = 0.6))
+
+set.seed(9242)  
+
+#calculatin an even sampling depth for all the samples
+rarefied <- rarefy_even_depth(physeq4, sample.size = 106927)
+rarefied
+
+#calculating the alpha diversity
+diversity <- alpha(rarefied, index = "all")
+diversity <- rownames_to_column(diversity, "sample_id")
+
+#Extracting the shannon diversity index
+shannon <- diversity %>% select(sample_id, diversity_shannon)
+
+shannon_editted <- merge(shannon, sdata, by = "sample_id", all = TRUE)
+
+
+#confirming if the shannon indices are normally distributed
+shapiro.test(shannon$shannon)
+
+library(ggpubr)
+#plotting the boxplots for the shannon index data
+p <- ggplot(shannon_editted, aes(x=species, y=diversity_shannon)) + geom_boxplot(aes(fill = species)) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) + stat_compare_means()
+
+p
