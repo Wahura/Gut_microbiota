@@ -741,42 +741,53 @@ plot_ordination(physeq3, ordu, color="species")+ geom_point(size=2) +
 ```
 __Alpha diversity estimation__
 ```
-physeq4 <- phyloseq(TAX2, OTU2, samdata, phylogenetic_tree)
-reads <- sample_sums(physeq4) #total read counts in the samples
+physeq4 <- phyloseq(TAX2, OTU2, samdata, phylogenetic_tree) #creating a phyloseq object
+physeq4
+reads <- sample_sums(physeq4) #number of reads per sample in the creating phyloseq object
 reads
-
-summary(sample_sums(physeq4))
-
+summary(sample_sums(physeq4)) #summarizes the interquatile ranges and the least to highest reads in a sample
+```
+__Extracting the otu table from the phyloseq object and plotting the rarefaction curve__
+```
 library(microbiome)
-#Extracting the otu table from the phyloseq object and plotting the rarefaction curve
 otu_tab <- t(abundances(physeq4))
 p <- vegan::rarecurve(otu_tab, 
                       step = 50, label = FALSE, 
                       sample = min(rowSums(otu_tab), 
                                    col = "blue", cex = 0.6))
-
-set.seed(9242)  
-
-#calculatin an even sampling depth for all the samples
+```
+__calculatin an even sampling depth for all the samples__
+```
+set.seed(9242)  #for reproducibility
 rarefied <- rarefy_even_depth(physeq4, sample.size = 106927)
 rarefied
-
-#calculating the alpha diversity
+```
+__alpha diversity estimation__
+```
 diversity <- alpha(rarefied, index = "all")
 diversity <- rownames_to_column(diversity, "sample_id")
-
-#Extracting the shannon diversity index
+```
+__Extracting the sample metadata from the phyloseq object__
+```
+sdata1 <- meta(physeq4)
+sdata1 <- rownames_to_column(sdata1, "sample_id")
+```
+__Extracting the shannon diversity index__
+```
 shannon <- diversity %>% select(sample_id, diversity_shannon)
-
-shannon_editted <- merge(shannon, sdata, by = "sample_id", all = TRUE)
-
-
-#confirming if the shannon indices are normally distributed
-shapiro.test(shannon$shannon)
-
+shannon_editted <- merge(shannon, sdata1, by = "sample_id", all = TRUE)
+```
+__confirming if the shannon indices are normally distributed__
+```
+shapiro.test(shannon_editted$diversity_shannon) #checks if the data is parametric or not
+```
+__Plotting the alpha diversity plots using shannon index__
+```
 library(ggpubr)
-#plotting the boxplots for the shannon index data
 p <- ggplot(shannon_editted, aes(x=species, y=diversity_shannon)) + geom_boxplot(aes(fill = species)) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) + stat_compare_means()
 
 p
+```
+
+
