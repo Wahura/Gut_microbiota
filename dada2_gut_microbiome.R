@@ -471,7 +471,7 @@ OTU2 = otu_table(my_feature_table, taxa_are_rows = TRUE)
 physeq3 = phyloseq(TAX2, OTU2, samdata,phylogenetic_tree)
 physeq3
 
-sample_data(physeq3)[,2] <- sample_data(physeq3)[,1]
+#sample_data(physeq3)[,2] <- sample_data(physeq3)[,1]
 
 total = median(sample_sums(physeq3))#finds median sample read count
 standf = function(x, t=total) round(t * (x / sum(x)))#function to standardize to median sample read count
