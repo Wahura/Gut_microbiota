@@ -135,7 +135,7 @@ fwd_primer_orients <- allOrients(fwd_primer)
         Forward          Complement             Reverse             RevComp 
       "CCTACGGGNGGCWGCAG" "GGATGCCCNCCGWCGTC" "GACGWCGGNGGGCATCC" "CTGCWGCCNCCCGTAGG" 
 ```
-rev_primer_orients <- allOrients(rev_primer
+rev_primer_orients <- allOrients(rev_primer)
 ```
               Forward              Complement                 Reverse 
       "GACTACHVGGGTATCTAATCC" "CTGATGDBCCCATAGATTAGG" "CCTAATCTATGGGVHCATCAG" 
@@ -586,7 +586,7 @@ merged <- merge(merged, K_MFB_total, by = "Genus", all = TRUE)
 merged <- merge(merged, K_MFR_total, by = "Genus", all = TRUE)
 merged <- merge(merged, K_DS_total, by = "Genus", all = TRUE)
 ```
-__calculating and ordering the genus from the most abundant
+__calculating and ordering the genus from the most abundant__
 ```
 library(janitor)
 cumulation <- merged %>% adorn_totals(c("col"))
@@ -603,7 +603,7 @@ __aggregating the rest of the phyla as others__
 grouped_data <- aggregate(merged[-1], list(Genus = replace(merged$Genus,!(merged$Genus %in% to_represent), "Others")), sum)
 View(grouped_data) 
 ```
-__converting the abundance into percentage
+__converting the abundance into percentage__
 ```
 bar <- adorn_percentages(grouped_data, denominator = "col", na.rm = TRUE)
 ```
@@ -671,9 +671,10 @@ phylo_sequences <- readDNAStringSet("phylo_sequences.fasta")
 names(phylo_sequences)
 ```
 __Multiple sequence alignment__
+```
 library(DECIPHER)
 alignment <- AlignSeqs(phylo_sequences, anchor = NA)
-
+```
 __Constructing the phylogenetic tree__
 ```
 library(phangorn)
