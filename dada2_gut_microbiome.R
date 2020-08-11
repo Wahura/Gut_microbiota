@@ -1,7 +1,7 @@
 library(dada2)
 
 #loading the fastq files into R
-file_path <- "stingless_bee/"
+file_path <- "test_data"
 list.files(file_path)
 
 #sorting the data
@@ -84,7 +84,7 @@ for (i in seq_along(dataF)) {
           args = c(cutadapt_args,
                    "-o", fwd_cut[i], "-p", rev_cut[i], 
                    dataF[i], dataR[i]),
-          stdout = )  
+          stdout = NULL)  
 }
 
 #sanity check
