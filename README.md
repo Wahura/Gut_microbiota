@@ -414,7 +414,7 @@ head(track.nbr.reads)
 __Taxonomic classification__
 ```
 taxa <- assignTaxonomy(seqtab.nochim, "silva_nr_v138_train_set.fa.gz", multithread=TRUE)
-taxa <- addSpecies(taxa, "silva_species_assignment_v132.fa.gz") #classification at species level
+taxa <- addSpecies(taxa, "silva_species_assignment_v138.fa.gz") #classification at species level
 taxa.print <- taxa
 
 ```
