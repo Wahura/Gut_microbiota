@@ -162,14 +162,45 @@ creating an output directory to store the trimmed files and specifying the names
 cut_dir <- file.path(file_path, "cutadapt")
 if (!dir.exists(cut_dir)) dir.create(cut_dir)
 
-fwd_cut <- file.path(cut_dir, basename(dataF))
+#creates a file path for the cutadapted reads within the cut_dir
+fwd_cut <- file.path(cut_dir, basename(dataF)) 
 rev_cut <- file.path(cut_dir, basename(dataR))
 
 names(fwd_cut) <- list.sample.names
+head(fwd_cut)
+```
+       DS40 
+"test_data/cutadapt/10K_DS40_L001_R1_001.fastq.gz" 
+                                              HA41 
+"test_data/cutadapt/11K_HA41_L001_R1_001.fastq.gz" 
+                                              HA42 
+"test_data/cutadapt/12K_HA42_L001_R1_001.fastq.gz" 
+                                              HA43 
+"test_data/cutadapt/13K_HA43_L001_R1_001.fastq.gz" 
+                                              HA44 
+"test_data/cutadapt/14K_HA44_L001_R1_001.fastq.gz" 
+                                              HA45 
+"test_data/cutadapt/15K_HA45_L001_R1_001.fastq.gz" 
+
+```
 names(rev_cut) <- list.sample.names
+head(rev_cut)
 ```
+ DS40 
+"test_data/cutadapt/10K_DS40_L001_R2_001.fastq.gz" 
+                                              HA41 
+"test_data/cutadapt/11K_HA41_L001_R2_001.fastq.gz" 
+                                              HA42 
+"test_data/cutadapt/12K_HA42_L001_R2_001.fastq.gz" 
+                                              HA43 
+"test_data/cutadapt/13K_HA43_L001_R2_001.fastq.gz" 
+                                              HA44 
+"test_data/cutadapt/14K_HA44_L001_R2_001.fastq.gz" 
+                                              HA45 
+"test_data/cutadapt/15K_HA45_L001_R2_001.fastq.gz" 
+
 ```
- # function for creating cutadapt trimming log files
+# function for creating cutadapt trimming log files
  
 cut_logs <- path.expand(file.path(cut_dir, paste0(list.sample.names, ".log")))
 ```
@@ -232,9 +263,29 @@ __Assigning where the filtered data should be stored "filtered" directory__
 ```
 filt.dataF <- file.path(file_path, "filtered", paste0(list.sample.names, "_F_filt.fastq.gz"))
 filt.dataR <- file.path(file_path, "filtered", paste0(list.sample.names, "_R_filt.fastq.gz"))
-names(filt.dataF) <- list.sample.names
-names(filt.dataR) <- list.sample.names
 ```
+```
+#Defining the file names
+names(filt.dataF) <- list.sample.names
+head(filt.dataF)
+```
+                                  DS40                                      HA41 
+"test_data/filtered/DS40_F_filt.fastq.gz" "test_data/filtered/HA41_F_filt.fastq.gz" 
+                                     HA42                                      HA43 
+"test_data/filtered/HA42_F_filt.fastq.gz" "test_data/filtered/HA43_F_filt.fastq.gz" 
+                                     HA44                                      HA45 
+"test_data/filtered/HA44_F_filt.fastq.gz" "test_data/filtered/HA45_F_filt.fastq.gz" 
+
+```
+names(filt.dataR) <- list.sample.names
+head(filt.dataR)
+```
+DS40                                      HA41 
+"test_data/filtered/DS40_R_filt.fastq.gz" "test_data/filtered/HA41_R_filt.fastq.gz" 
+                                     HA42                                      HA43 
+"test_data/filtered/HA42_R_filt.fastq.gz" "test_data/filtered/HA43_R_filt.fastq.gz" 
+                                     HA44                                      HA45 
+"test_data/filtered/HA44_R_filt.fastq.gz" "test_data/filtered/HA45_R_filt.fastq.gz" 
 
 __Filtering and trimming data__
 ```

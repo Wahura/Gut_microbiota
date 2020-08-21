@@ -74,11 +74,14 @@ fwd_cut <- file.path(cut_dir, basename(dataF))
 rev_cut <- file.path(cut_dir, basename(dataR))
 
 names(fwd_cut) <- list.sample.names
+head(fwd_cut)
 names(rev_cut) <- list.sample.names
+head(rev_cut)
 
 # function for creating cutadapt trimming log files
 cut_logs <- path.expand(file.path(cut_dir, paste0(list.sample.names, ".log")))
 
+# Function specifying the cutadapt functions to be used in this analysis
 cutadapt_args <- c("-g", fwd_primer, "-a", rev_primer_rev, 
                    "-G", rev_primer, "-A", fwd_primer_rev,
                    "-n", 2,"-m",1, "-j",32, "--discard-untrimmed")
@@ -92,7 +95,7 @@ for (i in seq_along(dataF)) {
           stdout = NULL)  
 }
 
-#sanity check
+#checking if the forward and reverse primers have been trimmed
 rbind(R1_fwd_primer = sapply(fwd_primer_orients, count_primers, filename = fwd_cut[[1]]), 
       R2_fwd_primer = sapply(fwd_primer_orients, count_primers, filename = fwd_cut[[1]]), 
       R1_rev_primer = sapply(rev_primer_orients, count_primers, filename = fwd_cut[[1]]), 
@@ -111,13 +114,20 @@ plotQualityProfile(rev_cut[1:5])
 filt.dataF <- file.path(file_path, "filtered", paste0(list.sample.names, "_F_filt.fastq.gz"))
 filt.dataR <- file.path(file_path, "filtered", paste0(list.sample.names, "_R_filt.fastq.gz"))
 names(filt.dataF) <- list.sample.names
+head(filt.dataF)
 names(filt.dataR) <- list.sample.names
+head(filt.dataR)
 
 #filtering and trimming data
 out <- filterAndTrim(fwd_cut, filt.dataF, rev_cut, filt.dataR, truncLen=c(240,200),
                      maxN=0, maxEE=c(2,5), truncQ=2, rm.phix=TRUE,
                      compress=TRUE, multithread=TRUE)
 head(out)
+
+#checking the quality of the quality trimmed reads
+plotQualityProfile(filt.dataF[1:5])
+plotQualityProfile(filt.dataR[1:5])
+
 #Establishing the error rates in the data for both the forwards and reverses
 errF <- learnErrors(filt.dataF, multithread=TRUE)
 errR <- learnErrors(filt.dataR, multithread=TRUE)
