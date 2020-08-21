@@ -427,26 +427,32 @@ asv_headers <- vector(dim(seqtab.nochim)[2], mode="character")
 for (i in 1:dim(seqtab.nochim)[2]) {
   asv_headers[i] <- paste(">ASV", i, sep="_")
 }
+
+head(asv_headers)
 ```
-__Generating a sequence table having the defined row names__
+[1] ">ASV_1" ">ASV_2" ">ASV_3" ">ASV_4" ">ASV_5" ">ASV_6"
+
+__Generating output sequence, taxonomy and count tables__
 ```
+library(tidyverse)
+
+#Generating sequence table
 seqs <- getSequences(seqtab.nochim)
 asv_fasta <- c(rbind(asv_headers, seqs))
-write(asv_fasta, "stingless_ASV.fasta")
+head(asv_fasta)
+write(asv_fasta, "stingless_ASV.fasta") #writing the fasta file format of the sequences
+
 #creating a sequence table dataframe
 names(seqs) <- sub(">", "", asv_headers)
 seqs <- as.data.frame(seqs)
 seqs <- seqs %>% rownames_to_column(var = "OTU")
-```
 
 __Generating a feature table with newly defined row names__
-```
 count_asv_tab <- t(seqtab.nochim)
 row.names(count_asv_tab) <- sub(">", "", asv_headers)
 write.table(count_asv_tab, "ASVs_counts.tsv", sep="\t", quote=F, col.names=NA)
-```
+
 __Generating a taxonomy table with the newly defined row names__
-```
 rownames(taxa.print) <- gsub(pattern=">", replacement="", x=asv_headers)
 head(taxa.print)
 write.csv(taxa.print, file="ASVs_taxonomy.csv")
@@ -456,20 +462,25 @@ __Converting taxonomy and feature tables to a phyloseq object__
 library(phyloseq)
 TAX = tax_table(taxa.print) #taxonomy table
 OTU = otu_table(count_asv_tab, taxa_are_rows = TRUE) #feature table
-```
-__Reading the sample metadata into R and converting it into a phyloseq object__
-```
+
+#Reading the sample metadata into R and converting it into a phyloseq object
 library(dplyr)
-sdata <- read.csv("stingless_bee_sample_metadata.csv", sep = ',', header = TRUE) #Reading the metadata into R
+sdata <- read.csv("stingless_bee_sample_metadata.csv", sep = ',', header = TRUE) 
+
+#Reading the metadata into R and converting it into a phyloseq object
 colnames(sdata) <- c("sample_id", "species")
 sdata1 <- sdata %>% remove_rownames %>% column_to_rownames(var="Sample.id")
 samdata = sample_data(sdata1)
-```
-__creating a phyloseq object__
-```
+
+#creating a phyloseq object
 physeq = phyloseq(OTU, TAX, samdata)
 physeq
 ```
+phyloseq-class experiment-level object
+otu_table()   OTU Table:         [ 2728 taxa and 56 samples ]
+sample_data() Sample Data:       [ 56 samples by 2 sample variables ]
+tax_table()   Taxonomy Table:    [ 2728 taxa by 7 taxonomic ranks ]
+
 __filtering the unwanted sequences__
 ```
 physeq0 <- subset_taxa(physeq, (Order!="Chloroplast") | is.na(Order))

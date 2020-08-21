@@ -169,8 +169,8 @@ head(track.nbr.reads)
 
 #Taxonomic classification
 taxa <- assignTaxonomy(seqtab.nochim, "silva_nr_v138_train_set.fa.gz", multithread=TRUE)
-taxa <- addSpecies(taxa, "silva_species_assignment_v132.fa.gz") #classification at species level
-taxa.print <- taxa # Removing sequence rownames for display only
+taxa <- addSpecies(taxa, "silva_species_assignment_v138.fa.gz") #classification at species level
+taxa.print <- taxa # Reassigning taxa to a new name for downstream analysis
 
 #Defining the rownames for the three table
 asv_headers <- vector(dim(seqtab.nochim)[2], mode="character")
@@ -179,10 +179,15 @@ for (i in 1:dim(seqtab.nochim)[2]) {
   asv_headers[i] <- paste(">ASV", i, sep="_")
 }
 
+head(asv_headers)
+
 #generating a sequence table having the defined row names
+library(tidyverse)
 seqs <- getSequences(seqtab.nochim)
 asv_fasta <- c(rbind(asv_headers, seqs))
+head(asv_fasta)
 write(asv_fasta, "stingless_ASV.fasta")
+
 #creating a sequence table dataframe
 names(seqs) <- sub(">", "", asv_headers)
 seqs <- as.data.frame(seqs)
