@@ -3,3 +3,5 @@
 .RData
 .Ruserdata
 Gut_microbiota.Rproj
+test_data/cutadapt/
+test_data/filtered/
