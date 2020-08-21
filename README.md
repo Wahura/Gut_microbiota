@@ -169,35 +169,35 @@ rev_cut <- file.path(cut_dir, basename(dataR))
 names(fwd_cut) <- list.sample.names
 head(fwd_cut)
 ```
-       DS40 
-"test_data/cutadapt/10K_DS40_L001_R1_001.fastq.gz" 
+                                                     DS40 
+        "test_data/cutadapt/10K_DS40_L001_R1_001.fastq.gz" 
                                               HA41 
-"test_data/cutadapt/11K_HA41_L001_R1_001.fastq.gz" 
+        "test_data/cutadapt/11K_HA41_L001_R1_001.fastq.gz" 
                                               HA42 
-"test_data/cutadapt/12K_HA42_L001_R1_001.fastq.gz" 
+        "test_data/cutadapt/12K_HA42_L001_R1_001.fastq.gz" 
                                               HA43 
-"test_data/cutadapt/13K_HA43_L001_R1_001.fastq.gz" 
+        "test_data/cutadapt/13K_HA43_L001_R1_001.fastq.gz" 
                                               HA44 
-"test_data/cutadapt/14K_HA44_L001_R1_001.fastq.gz" 
+        "test_data/cutadapt/14K_HA44_L001_R1_001.fastq.gz" 
                                               HA45 
-"test_data/cutadapt/15K_HA45_L001_R1_001.fastq.gz" 
+        "test_data/cutadapt/15K_HA45_L001_R1_001.fastq.gz" 
 
 ```
 names(rev_cut) <- list.sample.names
 head(rev_cut)
 ```
- DS40 
-"test_data/cutadapt/10K_DS40_L001_R2_001.fastq.gz" 
-                                              HA41 
-"test_data/cutadapt/11K_HA41_L001_R2_001.fastq.gz" 
-                                              HA42 
-"test_data/cutadapt/12K_HA42_L001_R2_001.fastq.gz" 
-                                              HA43 
-"test_data/cutadapt/13K_HA43_L001_R2_001.fastq.gz" 
-                                              HA44 
-"test_data/cutadapt/14K_HA44_L001_R2_001.fastq.gz" 
-                                              HA45 
-"test_data/cutadapt/15K_HA45_L001_R2_001.fastq.gz" 
+                                                 DS40 
+        "test_data/cutadapt/10K_DS40_L001_R2_001.fastq.gz" 
+                                                HA41 
+        "test_data/cutadapt/11K_HA41_L001_R2_001.fastq.gz" 
+                                                HA42 
+        "test_data/cutadapt/12K_HA42_L001_R2_001.fastq.gz" 
+                                                HA43 
+        "test_data/cutadapt/13K_HA43_L001_R2_001.fastq.gz" 
+                                                HA44 
+        "test_data/cutadapt/14K_HA44_L001_R2_001.fastq.gz" 
+                                                HA45 
+        "test_data/cutadapt/15K_HA45_L001_R2_001.fastq.gz" 
 
 ```
 # function for creating cutadapt trimming log files
@@ -270,22 +270,22 @@ names(filt.dataF) <- list.sample.names
 head(filt.dataF)
 ```
                                   DS40                                      HA41 
-"test_data/filtered/DS40_F_filt.fastq.gz" "test_data/filtered/HA41_F_filt.fastq.gz" 
+        "test_data/filtered/DS40_F_filt.fastq.gz" "test_data/filtered/HA41_F_filt.fastq.gz" 
                                      HA42                                      HA43 
-"test_data/filtered/HA42_F_filt.fastq.gz" "test_data/filtered/HA43_F_filt.fastq.gz" 
+        "test_data/filtered/HA42_F_filt.fastq.gz" "test_data/filtered/HA43_F_filt.fastq.gz" 
                                      HA44                                      HA45 
-"test_data/filtered/HA44_F_filt.fastq.gz" "test_data/filtered/HA45_F_filt.fastq.gz" 
+        "test_data/filtered/HA44_F_filt.fastq.gz" "test_data/filtered/HA45_F_filt.fastq.gz" 
 
 ```
 names(filt.dataR) <- list.sample.names
 head(filt.dataR)
 ```
-DS40                                      HA41 
-"test_data/filtered/DS40_R_filt.fastq.gz" "test_data/filtered/HA41_R_filt.fastq.gz" 
+                                      DS40                                      HA41 
+        "test_data/filtered/DS40_R_filt.fastq.gz" "test_data/filtered/HA41_R_filt.fastq.gz" 
                                      HA42                                      HA43 
-"test_data/filtered/HA42_R_filt.fastq.gz" "test_data/filtered/HA43_R_filt.fastq.gz" 
+        "test_data/filtered/HA42_R_filt.fastq.gz" "test_data/filtered/HA43_R_filt.fastq.gz" 
                                      HA44                                      HA45 
-"test_data/filtered/HA44_R_filt.fastq.gz" "test_data/filtered/HA45_R_filt.fastq.gz" 
+        "test_data/filtered/HA44_R_filt.fastq.gz" "test_data/filtered/HA45_R_filt.fastq.gz" 
 
 __Filtering and trimming data__
 ```
@@ -302,6 +302,17 @@ head(out)
       14K_HA44_L001_R1_001.fastq.gz   225857    191037
       15K_HA45_L001_R1_001.fastq.gz   222596    182823                                    
 This step aids in trimming all low quality reads. The first and the third variables contain the input files which are primer trimmed files. The second and the third hold the file names for the output forward and reverse sequences. __MaxEE__ on the code defines the quality filtering threshold based on the expected errors. In this particular code, all sequences with more than 2 erroneous bases in the forward reads and 5 erroneous reads in the reverse reads are filtered. Ids f the reverse reads in your dataset have better quality you can set __MaxEE (2,2)__. __rm.PhiX__ aids in deleting any read similar to the PHiX bacteriophage. __truncQ = 2__ trims all the bases that appear after the first quality score of 2 it comes across in aread. __MaxN = 0__ removes any sequences containing Ns and __truncLen__ identifies the minimum size to trim the forward and reads to keep the quality scores above 25.
+
+__Checking the quality of the plots after trimming for low quality bases
+```
+plotQualityProfile(fwd_cut[1:5])
+```
+![quality profile forward](forward_quality_trimmed_reads.png)
+
+```
+plotQualityProfile(rev_cut[1:5])
+```
+![quality profile reverse](reverse_quality_trimmed_reads.png)
 
 __Establishing the error rates in the data for both the forwards and reverses__
 ```
