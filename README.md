@@ -3,7 +3,7 @@ This repo contains an R script that can be used in the analysis of 16S gut micro
 
 __Working around with the data__
 
-Load the dada2 package into R. If you have not installed dada2, follow the turorial here http://benjjneb.github.io/dada2/dada-installation.html
+Load the dada2 package into R. If you have not installed dada2, follow the [turorial here](http://benjjneb.github.io/dada2/dada-installation.html)
 ```
 library(dada2)
 ```
@@ -151,7 +151,7 @@ In this dataset it is evident that majority of the forward and reverse primers t
 
 __Primer trimming__
 
-Primers here are trimmed using cutadapt. Other possible tools to adopt include trimmomatic. For cutadapt installation and usage guides folloe this link https://cutadapt.readthedocs.io/en/stable/index.html. After installation, specify the path to cutadapt and confirm its version as a confirmation that you have its rightful path.
+Primers here are trimmed using cutadapt. Other possible tools to adopt include trimmomatic. For cutadapt installation and usage guides follow [this link](https://cutadapt.readthedocs.io/en/stable/index.html). After installation, specify the path to cutadapt and confirm its version as a confirmation that you have its rightful path.
 ```
 #specifying the path to cutadapt on the server
 cutadapt <- "/opt/apps/cutadapt/1.18/bin/cutadapt" # change to the cutadapt path on your machine
@@ -246,7 +246,7 @@ rbind(R1_fwd_primer = sapply(fwd_primer_orients, count_primers, filename = rev_c
       R2_rev_primer      59         60      58      57
 
       
-From the cutadapted reads, all the primers in the forward and reverse reads were completely trimmed in the first sample. However the some reverse primers still remained in the forward and reverse reads. From this github issue https://github.com/benjjneb/dada2/issues/675, we find that since the number of reverse primers that have remained are fewer than what was initially present, they would not affect downstream analysis. 
+From the cutadapted reads, all the primers in the forward and reverse reads were completely trimmed in the first sample. However the some reverse primers still remained in the forward and reverse reads. From this [github issue](https://github.com/benjjneb/dada2/issues/675), we find that since the number of reverse primers that have remained are fewer than what was initially present, they would not affect downstream analysis. 
 
   __plotting the quality plots again to determine the length to use while filtering reads__
   ```
@@ -418,7 +418,7 @@ taxa <- addSpecies(taxa, "silva_species_assignment_v132.fa.gz") #classification 
 taxa.print <- taxa
 
 ```
-The DADA2 package provides a native implementation of the naive Bayesian classifier method for taxonomic assignment. The assignTaxonomy function takes as input a set of sequences to ba classified. Dada2 provides the silva database for bacteria classification which can be found here http://benjjneb.github.io/dada2/training.html. 
+The DADA2 package provides a native implementation of the naive Bayesian classifier method for taxonomic assignment. The assignTaxonomy function takes as input a set of sequences to ba classified. Dada2 provides the silva database for bacteria classification which can be [found here](http://benjjneb.github.io/dada2/training.html). 
 
 __Defining the rownames for the three table__
 ```
