@@ -321,6 +321,9 @@ errF <- learnErrors(filt.dataF, multithread=TRUE)
 errR <- learnErrors(filt.dataR, multithread=TRUE)
 ```
 __Plotting the error rates__
+
+Since every data has its own unique error profile, learnErrors function in dada2 helps in identifying this. This approach uses machine learning to guess the maximum number of error rates. The output plots show the error rates for each possible transition. In the plots below, the red line shows the expected error profile, black line shows the estimated error profile after convergence of the machine learning algorithm while the black dots represents the error rates for each possible base transition based on quality score.Here, the estimated error rates are a good fit to the observed rates and the error rates drop with increased quality as expected.
+
 ```
 plotErrors(errF, nominalQ=TRUE)
 ```
@@ -331,7 +334,7 @@ plotErrors(errR, nominalQ=TRUE)
 ```
 ![error_profile](error_profile_reverse_stingless.png)
 
-Since every data has its own unique error profile, learnErrors function in dada2 helps in identifying this. This approach uses machine learning to guess the maximum number of error rates. The output plots show the error rates for each possible transition. The red line shows the expected error profile, black line shows the estimated error profile after convergence of the machine learning algorithm while the black dots represents the error rates for each possible base transition based on quality score.Here, the estimated error rates are a good fit to the observed rates and the error rates drop with increased quality as expected.
+
 
 __Denoising__
 ```
