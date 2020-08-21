@@ -377,7 +377,7 @@ __generating a sequence table__
 seqtab <- makeSequenceTable(merge.reads)
 dim(seqtab)
 ```
-[1]    56 11233
+        [1]    56 11233
 ```
 table(nchar(getSequences(seqtab))) #establishing the number of samples distributed per length
 ```
@@ -385,15 +385,15 @@ __Removing chimeras__
 ```
 seqtab.nochim <- removeBimeraDenovo(seqtab, method="consensus", multithread=TRUE, verbose=TRUE)
 ```
-Identified 8505 bimeras out of 11233 input sequences.
+        Identified 8505 bimeras out of 11233 input sequences.
 ```
 dim(seqtab.nochim)
 ```
-[1]   56 2728
+        [1]   56 2728
 ```
 sum(seqtab.nochim)/sum(seqtab) #Establishing the percentage of non_chimeric reads
 ```
-[1] 0.9673027
+        [1] 0.9673027
 
 __Tracking the number of reads that passed the various steps in the pipeline__
 ```
@@ -403,13 +403,13 @@ colnames(track.nbr.reads) <- c("input", "filtered", "denoisedF", "denoisedR", "m
 rownames(track.nbr.reads) <- list.sample.names
 head(track.nbr.reads)
 ```
- input filtered denoisedF denoisedR merged nonchim per_retained
-DS40 135133   119830    119694    119775 118787  117805         87.2
-HA41 193469   165754    165574    165561 164951  163289         84.4
-HA42 204214   176177    176071    176025 175638  175009         85.7
-HA43 188712   159583    159383    159540 158904  158827         84.2
-HA44 225921   197446    197148    197216 196006  184123         81.5
-HA45 222641   189535    189193    189136 187394  172257         77.4
+                input filtered denoisedF denoisedR merged nonchim per_retained
+        DS40 135133   119830    119694    119775 118787  117805         87.2
+        HA41 193469   165754    165574    165561 164951  163289         84.4
+        HA42 204214   176177    176071    176025 175638  175009         85.7
+        HA43 188712   159583    159383    159540 158904  158827         84.2
+        HA44 225921   197446    197148    197216 196006  184123         81.5
+        HA45 222641   189535    189193    189136 187394  172257         77.4
 
 __Taxonomic classification__
 ```
