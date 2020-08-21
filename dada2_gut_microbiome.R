@@ -2,12 +2,13 @@ library(dada2)
 
 #loading the fastq files into R
 file_path <- "test_data"
-list.files(file_path)
+head(list.files(file_path))
 
 #sorting the data
 dataF <- sort(list.files(file_path, pattern="_R1_001.fastq.gz", full.names = TRUE))
+head(dataF)
 dataR <- sort(list.files(file_path, pattern="_R2_001.fastq.gz", full.names = TRUE))
-
+head(dataR)
 #Extracting the file names
 list.sample.names <- sapply(strsplit(basename(dataF), "_"), `[`, 2)
 list.sample.names
@@ -36,11 +37,15 @@ allOrients <- function(primer) {
 
 # get the posisible orientations of the forward and reverse primers
 fwd_primer_orients <- allOrients(fwd_primer)
+fwd_primer_orients
 rev_primer_orients <- allOrients(rev_primer)
+rev_primer_orients
 fwd_primer_rev <- as.character(reverseComplement(DNAStringSet(fwd_primer))) # reverse complement of the primers
+fwd_primer_rev
 rev_primer_rev <- as.character(reverseComplement(DNAStringSet(rev_primer)))
+rev_primer_rev
 
-#function for countingb the reads containing primers
+#function for counting the reads containing primers
 count_primers <- function(primer, filename) {
   num_hits <- vcountPattern(primer, sread(readFastq(filename)), fixed = FALSE)
   return(sum(num_hits > 0))
