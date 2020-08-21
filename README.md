@@ -24,17 +24,17 @@ __sorting the data into forward and reverse reads__
 dataF <- sort(list.files(file_path, pattern="_R1_001.fastq.gz", full.names = TRUE))
 dataF
 ```
-[1] "test_data/10K_DS40_L001_R1_001.fastq.gz" "test_data/11K_HA41_L001_R1_001.fastq.gz"
-[3] "test_data/12K_HA42_L001_R1_001.fastq.gz" "test_data/13K_HA43_L001_R1_001.fastq.gz"
-[5] "test_data/14K_HA44_L001_R1_001.fastq.gz" "test_data/15K_HA45_L001_R1_001.fastq.gz"
+        [1] "test_data/10K_DS40_L001_R1_001.fastq.gz" "test_data/11K_HA41_L001_R1_001.fastq.gz"
+        [3] "test_data/12K_HA42_L001_R1_001.fastq.gz" "test_data/13K_HA43_L001_R1_001.fastq.gz"
+        [5] "test_data/14K_HA44_L001_R1_001.fastq.gz" "test_data/15K_HA45_L001_R1_001.fastq.gz"
 
 ```
 dataR <- sort(list.files(file_path, pattern="_R2_001.fastq.gz", full.names = TRUE))
 dataR
 ```
-[1] "test_data/10K_DS40_L001_R2_001.fastq.gz" "test_data/11K_HA41_L001_R2_001.fastq.gz"
-[3] "test_data/12K_HA42_L001_R2_001.fastq.gz" "test_data/13K_HA43_L001_R2_001.fastq.gz"
-[5] "test_data/14K_HA44_L001_R2_001.fastq.gz" "test_data/15K_HA45_L001_R2_001.fastq.gz"
+        [1] "test_data/10K_DS40_L001_R2_001.fastq.gz" "test_data/11K_HA41_L001_R2_001.fastq.gz"
+        [3] "test_data/12K_HA42_L001_R2_001.fastq.gz" "test_data/13K_HA43_L001_R2_001.fastq.gz"
+        [5] "test_data/14K_HA44_L001_R2_001.fastq.gz" "test_data/15K_HA45_L001_R2_001.fastq.gz"
 
 __Specifying the sample names for your dataset__
 ```
@@ -107,13 +107,13 @@ rev_primer_orients
 fwd_primer_rev <- as.character(reverseComplement(DNAStringSet(fwd_primer))) # reverse complement of the primers
 fwd_primer_rev
 ```
-  [1] "CTGCWGCCNCCCGTAGG"
+        [1] "CTGCWGCCNCCCGTAGG"
 
 ```
 rev_primer_rev <- as.character(reverseComplement(DNAStringSet(rev_primer)))
 rev_primer_rev
 ```
-  [1] "GGATTAGATACCCBDGTAGTC"
+        [1] "GGATTAGATACCCBDGTAGTC"
 
 ```
 # Function for counting the number of reads containing our primer orientations 
