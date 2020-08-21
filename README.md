@@ -430,7 +430,7 @@ for (i in 1:dim(seqtab.nochim)[2]) {
 
 head(asv_headers)
 ```
-[1] ">ASV_1" ">ASV_2" ">ASV_3" ">ASV_4" ">ASV_5" ">ASV_6"
+        [1] ">ASV_1" ">ASV_2" ">ASV_3" ">ASV_4" ">ASV_5" ">ASV_6"
 
 __Generating output sequence, taxonomy and count tables__
 ```
@@ -476,10 +476,10 @@ samdata = sample_data(sdata1)
 physeq = phyloseq(OTU, TAX, samdata)
 physeq
 ```
-phyloseq-class experiment-level object
-otu_table()   OTU Table:         [ 2728 taxa and 56 samples ]
-sample_data() Sample Data:       [ 56 samples by 2 sample variables ]
-tax_table()   Taxonomy Table:    [ 2728 taxa by 7 taxonomic ranks ]
+        phyloseq-class experiment-level object
+        otu_table()   OTU Table:         [ 2728 taxa and 56 samples ]
+        sample_data() Sample Data:       [ 56 samples by 2 sample variables ]
+        tax_table()   Taxonomy Table:    [ 2728 taxa by 7 taxonomic ranks ]
 
 __filtering the unwanted sequences__
 ```
