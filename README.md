@@ -259,6 +259,7 @@ From the cutadapted reads, all the primers in the forward and reverse reads were
   ![quality_plot](primer_trimmed_reverse_stingless.png)
   
   Note that unlike our first plot, this plot has a red line on the bottom to show the significant number of reads that were cutadapted.
+  
 __Assigning where the filtered data should be stored "filtered" directory__
 ```
 filt.dataF <- file.path(file_path, "filtered", paste0(list.sample.names, "_F_filt.fastq.gz"))
@@ -303,7 +304,7 @@ head(out)
       15K_HA45_L001_R1_001.fastq.gz   222596    182823                                    
 This step aids in trimming all low quality reads. The first and the third variables contain the input files which are primer trimmed files. The second and the third hold the file names for the output forward and reverse sequences. __MaxEE__ on the code defines the quality filtering threshold based on the expected errors. In this particular code, all sequences with more than 2 erroneous bases in the forward reads and 5 erroneous reads in the reverse reads are filtered. Ids f the reverse reads in your dataset have better quality you can set __MaxEE (2,2)__. __rm.PhiX__ aids in deleting any read similar to the PHiX bacteriophage. __truncQ = 2__ trims all the bases that appear after the first quality score of 2 it comes across in aread. __MaxN = 0__ removes any sequences containing Ns and __truncLen__ identifies the minimum size to trim the forward and reads to keep the quality scores above 25.
 
-__Checking the quality of the plots after trimming for low quality bases
+__Checking the quality of the plots after trimming for low quality bases__
 ```
 plotQualityProfile(fwd_cut[1:5])
 ```
