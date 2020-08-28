@@ -430,7 +430,7 @@ for (i in 1:dim(seqtab.nochim)[2]) {
 
 head(asv_headers)
 ```
-[1] ">ASV_1" ">ASV_2" ">ASV_3" ">ASV_4" ">ASV_5" ">ASV_6"
+        [1] ">ASV_1" ">ASV_2" ">ASV_3" ">ASV_4" ">ASV_5" ">ASV_6"
 
 __Generating output sequence, taxonomy and count tables__
 ```
@@ -476,21 +476,25 @@ samdata = sample_data(sdata1)
 physeq = phyloseq(OTU, TAX, samdata)
 physeq
 ```
-phyloseq-class experiment-level object
-otu_table()   OTU Table:         [ 2728 taxa and 56 samples ]
-sample_data() Sample Data:       [ 56 samples by 2 sample variables ]
-tax_table()   Taxonomy Table:    [ 2728 taxa by 7 taxonomic ranks ]
+        phyloseq-class experiment-level object
+        otu_table()   OTU Table:         [ 2728 taxa and 56 samples ]
+        sample_data() Sample Data:       [ 56 samples by 2 sample variables ]
+        tax_table()   Taxonomy Table:    [ 2728 taxa by 7 taxonomic ranks ]
 
 __filtering the unwanted sequences__
 ```
 physeq0 <- subset_taxa(physeq, (Order!="Chloroplast") | is.na(Order))
 ntaxa(physeq0)
+[1] 2590
 physeq0 <- subset_taxa(physeq0, (Phylum!="Chloroflexi") | is.na(Phylum))
 ntaxa(physeq0)
+[1] 2586
 physeq0 <- subset_taxa(physeq0, (Family!="Mitochondria") | is.na(Family))
 ntaxa(physeq0)
+[1] 2525
 physeq0 <- subset_taxa(physeq0, (Kingdom!="Archaea") | is.na(Kingdom))
 ntaxa(physeq0)
+[1] 2524
 newPhyloObject = subset_samples(physeq0, sample_names(physeq0) != "NC68") #REmoving the negative control
 ```
 __Filtering OTUs and taxa with an abundance less than five__
@@ -498,12 +502,19 @@ __Filtering OTUs and taxa with an abundance less than five__
 filtered_physeq <- prune_taxa(taxa_sums(newPhyloObject) > 5, newPhyloObject)
 filtered_physeq
 ```
+phyloseq-class experiment-level object
+otu_table()   OTU Table:         [ 2183 taxa and 55 samples ]
+sample_data() Sample Data:       [ 55 samples by 2 sample variables ]
+tax_table()   Taxonomy Table:    [ 2183 taxa by 7 taxonomic ranks ]
+
 __creating phyloseq objects for taxa classified and unclassified at the genus level__
 ```
 physeq1 <- subset_taxa(filtered_physeq, (is.na(Genus)))
 ntaxa(physeq1)
+[1] 486
 physeq2 <- subset_taxa(filtered_physeq, (!is.na(Genus)))
 ntaxa(physeq2)
+[1] 1697
 ```
 __Extracting the filtered taxonomy and feature tables for barplot plotting__
 ```

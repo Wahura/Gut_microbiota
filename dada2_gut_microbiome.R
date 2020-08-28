@@ -215,7 +215,7 @@ library(dplyr)
 #Reading the sample meta data into R
 sdata <- read.csv("stingless_bee_sample_metadata.csv", sep = ',', header = TRUE)
 colnames(sdata) <- c("sample_id", "species")
-sdata1 <- sdata %>% remove_rownames %>% column_to_rownames(var="Sample.id")
+sdata1 <- sdata %>% remove_rownames %>% column_to_rownames(var="sample_id")
 samdata = sample_data(sdata1)
 
 #creating a phyloseq object
@@ -300,18 +300,17 @@ print(taxaId)
 blast_taxa<-getTaxonomy(taxaId,'accessionTaxa.sql', rownames = FALSE)
 print(blast_taxa)
 blast_taxa <- as.data.frame(blast_taxa)
-write.csv(blast_taxa, "blast_taxonomy.csv")
-blast_taxa <- read.csv("blast_taxonomy.csv", sep = ',', header = TRUE)
+blast_taxa <- rownames_to_column(blast_taxa, "taxaId")
 blast_taxa$OTU <- blast_out$qseqid
 
 #Removing the first staxids and making the OTU collumn the first
-blast_taxa <- subset(blast_taxa, select = -X)
-new_df <-blast_taxa %>%
-  select(OTU, everything())
+blast_taxa <- subset(blast_taxa, select = -taxaId)
+blast_taxa <-blast_taxa %>%
+  select(OTU, everything()) #making OTU the first collumn in blast taxa dataframe
 
 #checking for the presence of duplicates
-anyDuplicated(new_df$OTU)
-blast_results <- new_df[!duplicated(new_df$OTU),]
+anyDuplicated(blast_taxa$OTU)
+blast_results <- blast_taxa[!duplicated(blast_taxa$OTU),]
 
 #changing the collumn names
 colnames(blast_results) <- c("OTU", "Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species")
@@ -323,7 +322,13 @@ merged_data <- merge(blast_results, blast_abundance, by = "OTU", all = FALSE)
 silva_blast <- as.data.frame(bind_rows(silva_classified, merged_data))
 
 Featured_table <- silva_blast[,c(7,9:63)]
+
 #grouping the data
+group <- Featured_table %>%
+  group_by(Genus)%>%
+  summarise_if(is.numeric, sum)
+
+#Groups the data in the defined order which eases downstream analysis
 group <- Featured_table %>%
   group_by(Genus)%>%
   summarise_each(funs(sum), "HA41","HA42","HA43","HA44","HA45","HA46","HA47","HA50","HG56","HG57","LG74","LG75","LG76",
@@ -375,25 +380,21 @@ K_DS_total <- mutate(K_DS_total, K_DS=rowSums(K_DS_total[12])/10)
 K_DS_total <- K_DS_total[,c(1,13)]
 
 #merging the above dataframes
-merged <- merge(K_HA_total, K_HG_total, by = "Genus", all = TRUE)
-merged <- merge(merged, K_LG_total, by = "Genus", all = TRUE)
-merged <- merge(merged, K_LN_total, by = "Genus", all = TRUE)
-merged <- merge(merged, K_MB_total, by = "Genus", all = TRUE)
-merged <- merge(merged, K_MFB_total, by = "Genus", all = TRUE)
-merged <- merge(merged, K_MFR_total, by = "Genus", all = TRUE)
-merged <- merge(merged, K_DS_total, by = "Genus", all = TRUE)
+merged <- Reduce(function(x,y) merge(x,y,by="Genus",all=TRUE) ,list(K_HA_total,K_LG_total,K_LN_total, K_MB_total, K_MFB_total, K_MFR_total, K_DS_total))
 
+#calculating the total abudance per genus and ordering from the most abudant to the lowest
 cumulation <- merged %>% adorn_totals(c("col"))
 cumulation <- cumulation[order(cumulation$Total, decreasing = TRUE),]
 
 #specifying the taxa to be tabulated
-to_represent <- c("Lactobacillus", "Snodgrassella", "Saccharibacter","Bifidobacterium", "Neokomagataea", "	Saccharibacter","Bombella","	Ameyamaea",
-                  "Wolbachia","Nguyenibacter", "Zymobacter", "Acinetobacter", "Gluconacetobacter", "Enterococcus", "Acetobacter", "Alkanindiges", "Chryseobacterium") 
+to_represent <- c("Lactobacillus", "Saccharibacter","Bifidobacterium", "Neokomagataea", "	Saccharibacter","Bombella","	Ameyamaea",
+                  "Wolbachia","Nguyenibacter", "Zymobacter", "Acinetobacter", "Gluconacetobacter", "Alkanindiges", "Chryseobacterium") 
 
 #aggregating the rest of the phyla as others
 grouped_data <- aggregate(merged[-1], list(Genus = replace(merged$Genus,!(merged$Genus %in% to_represent), "Others")), sum)
 View(grouped_data) 
 
+#converting the abudances into percentage
 bar <- adorn_percentages(grouped_data, denominator = "col", na.rm = TRUE)
 
 #gathering the data
@@ -501,13 +502,20 @@ sample_sums(standardized_physeq)
 
 #ordinating the phyloseq object
 library(vegan)
+#bray curtis ordination
 ordu = ordinate(physeq3, "PCoA", "bray")
+plot_ordination(physeq3, ordu, color="species")+ geom_point(size=2) +
+  scale_color_manual(values = myPalette)
+
+#weighted unifrac
+ordu = ordinate(physeq3, "PCoA", "unifrac", weighted = TRUE)
 plot_ordination(physeq3, ordu, color="species")+ geom_point(size=2) +
   scale_color_manual(values = myPalette)
 
 #alpha diversity estimation
 physeq4 <- phyloseq(TAX2, OTU2, samdata, phylogenetic_tree)
 physeq4
+
 #checking out the total read counts in the samples
 reads <- sample_sums(physeq4)
 reads
@@ -539,11 +547,11 @@ sdata1 <- rownames_to_column(sdata1, "sample_id")
 #Extracting the shannon diversity index
 shannon <- diversity %>% select(sample_id, diversity_shannon)
 
-shannon_editted <- merge(shannon, sdata1, by = "sample_id", all = TRUE)
+shannon_edited <- merge(shannon, sdata1, by = "sample_id", all = TRUE)
 
 
 #confirming if the shannon indices are normally distributed
-shapiro.test(shannon_editted$diversity_shannon)
+shapiro.test(shannon_edited$diversity_shannon)
 
 library(ggpubr)
 
