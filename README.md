@@ -745,6 +745,7 @@ vd <- list(HA, LG, MFB, MFR, DS)
 names(vd) = c("HA", "LG","MFB", "MFR", "DS")
 venn(vd)
 ```
+![venn diagram](stingless_bee_venn_diagram.png)
 
 __Extracting sequences to be included in the study for plotting phylogenetic trees and converting them to FASTA format__
 ```
@@ -827,6 +828,8 @@ ordu = ordinate(physeq3, "PCoA", "bray")
 plot_ordination(physeq3, ordu, color="species")+ geom_point(size=2) +
   scale_color_manual(values = myPalette)
 ```
+![bray curtis](bray_curtis_PCoA_plot.png)
+
 __Alpha diversity estimation__
 ```
 physeq4 <- phyloseq(TAX2, OTU2, samdata, phylogenetic_tree) #creating a phyloseq object
@@ -844,6 +847,8 @@ p <- vegan::rarecurve(otu_tab,
                       sample = min(rowSums(otu_tab), 
                                    col = "blue", cex = 0.6))
 ```
+![rarefaction curve](rarefaction_curve_stingless_bee.png)
+
 __calculatin an even sampling depth for all the samples__
 ```
 set.seed(9242)  #for reproducibility
@@ -877,5 +882,5 @@ p <- ggplot(shannon_editted, aes(x=species, y=diversity_shannon)) + geom_boxplot
 
 p
 ```
-
+![alpha diversity](alpha_diversity_shannon.png)
 
