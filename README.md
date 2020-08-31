@@ -502,10 +502,10 @@ __Filtering OTUs and taxa with an abundance less than five__
 filtered_physeq <- prune_taxa(taxa_sums(newPhyloObject) > 5, newPhyloObject)
 filtered_physeq
 ```
-phyloseq-class experiment-level object
-otu_table()   OTU Table:         [ 2183 taxa and 55 samples ]
-sample_data() Sample Data:       [ 55 samples by 2 sample variables ]
-tax_table()   Taxonomy Table:    [ 2183 taxa by 7 taxonomic ranks ]
+        phyloseq-class experiment-level object
+        otu_table()   OTU Table:         [ 2183 taxa and 55 samples ]
+        sample_data() Sample Data:       [ 55 samples by 2 sample variables ]
+        tax_table()   Taxonomy Table:    [ 2183 taxa by 7 taxonomic ranks ]
 
 __creating phyloseq objects for taxa classified and unclassified at the genus level__
 ```
@@ -604,6 +604,11 @@ __Extracting the feature table to use for classification at the genus level__
 ```
 Featured_table <- silva_blast[,c(7,9:63)]
 #grouping the data
+group <- Featured_table %>%
+  group_by(Genus)%>%
+  summarise_if(is.numeric, sum)
+  ```
+  ```
 group <- Featured_table %>%
   group_by(Genus)%>%
   summarise_each(funs(sum), "HA41","HA42","HA43","HA44","HA45","HA46","HA47","HA50","HG56","HG57","LG74","LG75","LG76",
@@ -707,6 +712,7 @@ ggplot(bar,aes(x = sample_names, y = abundance))+geom_col(aes(fill = Genus),posi
   theme(axis.text.x = element_text(angle = 90, hjust = 1))+
   scale_fill_manual(values = myPalette)
 ```
+[barplot](16S_stingless_bee_barplot.png)
 __Beta diversity estimation__
 ```
 #Drawing the venn diagrams
