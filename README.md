@@ -826,6 +826,7 @@ ordu = ordinate(physeq3, "PCoA", "unifrac", weighted=FALSE) #unweighted unifrac
 plot_ordination(physeq3, ordu, color="species")+ geom_point(size=2) +
   scale_color_manual(values = myPalette)
 ```
+![unweighted unifrac](unweighted_unifrac.png)
 ```
 ordu = ordinate(physeq3, "PCoA", "bray")
 plot_ordination(physeq3, ordu, color="species")+ geom_point(size=2) +
