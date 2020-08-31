@@ -502,15 +502,22 @@ sample_sums(standardized_physeq)
 
 #ordinating the phyloseq object
 library(vegan)
+#weighted unifrac
+ordu = ordinate(physeq3, "PCoA", "unifrac", weighted = TRUE)
+plot_ordination(physeq3, ordu, color="species")+ geom_point(size=2) +
+  scale_color_manual(values = myPalette)
+
+#weighted unifrac
+ordu = ordinate(physeq3, "PCoA", "unifrac", weighted = FALSE)
+plot_ordination(physeq3, ordu, color="species")+ geom_point(size=2) +
+  scale_color_manual(values = myPalette)
+
 #bray curtis ordination
 ordu = ordinate(physeq3, "PCoA", "bray")
 plot_ordination(physeq3, ordu, color="species")+ geom_point(size=2) +
   scale_color_manual(values = myPalette)
 
-#weighted unifrac
-ordu = ordinate(physeq3, "PCoA", "unifrac", weighted = TRUE)
-plot_ordination(physeq3, ordu, color="species")+ geom_point(size=2) +
-  scale_color_manual(values = myPalette)
+
 
 #alpha diversity estimation
 physeq4 <- phyloseq(TAX2, OTU2, samdata, phylogenetic_tree)
