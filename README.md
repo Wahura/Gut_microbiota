@@ -86,7 +86,7 @@ allOrients <- function(primer) {
   return(sapply(orients, toString))  # Convert back to character vector
 }
 ```
-It is important to confirm all the possible orientations of the primers in the dataset in case one is unsure.
+It is important to confirm all the possible orientations of the primers in the dataset in case one is unsure. since primers are double stranded sequences represented by the upper strand sequence in the 5' to 3' orientation, a complement to the sequence is the lower strand in the same orientation as the upeer strand. A reverse sequence is the sequence of the upper strand in the direction from the 3' to 5' end. A reverse complement is the sequence of the lower strand in the direction of its 5' to 3' end. Forward primers are common in the forward orientation and in some reverse reads in the reverse complement orientation. orientation mixups are a common phenomenon.
 ```
 # creating all the possible orientations using our forward and reverse primers
 
