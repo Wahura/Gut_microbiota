@@ -712,7 +712,8 @@ ggplot(bar,aes(x = sample_names, y = abundance))+geom_col(aes(fill = Genus),posi
   theme(axis.text.x = element_text(angle = 90, hjust = 1))+
   scale_fill_manual(values = myPalette)
 ```
-[barplot](16S_stingless_bee_barplot.png)
+![barplot](16S_stingless_bee_barplot.png)
+
 __Beta diversity estimation__
 ```
 #Drawing the venn diagrams
