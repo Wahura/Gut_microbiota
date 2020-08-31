@@ -447,12 +447,12 @@ names(seqs) <- sub(">", "", asv_headers)
 seqs <- as.data.frame(seqs)
 seqs <- seqs %>% rownames_to_column(var = "OTU")
 
-__Generating a feature table with newly defined row names__
+#Generating a feature table with newly defined row names
 count_asv_tab <- t(seqtab.nochim)
 row.names(count_asv_tab) <- sub(">", "", asv_headers)
 write.table(count_asv_tab, "ASVs_counts.tsv", sep="\t", quote=F, col.names=NA)
 
-__Generating a taxonomy table with the newly defined row names__
+#Generating a taxonomy table with the newly defined row names
 rownames(taxa.print) <- gsub(pattern=">", replacement="", x=asv_headers)
 head(taxa.print)
 write.csv(taxa.print, file="ASVs_taxonomy.csv")
