@@ -663,13 +663,7 @@ K_DS_total <- K_DS_total[,c(1,13)]
 ```
 __Merging the above dataframes__
 ```
-merged <- merge(K_HA_total, K_HG_total, by = "Genus", all = TRUE)
-merged <- merge(merged, K_LG_total, by = "Genus", all = TRUE)
-merged <- merge(merged, K_LN_total, by = "Genus", all = TRUE)
-merged <- merge(merged, K_MB_total, by = "Genus", all = TRUE)
-merged <- merge(merged, K_MFB_total, by = "Genus", all = TRUE)
-merged <- merge(merged, K_MFR_total, by = "Genus", all = TRUE)
-merged <- merge(merged, K_DS_total, by = "Genus", all = TRUE)
+merged <- Reduce(function(x,y) merge(x,y,by="Genus",all=TRUE) ,list(K_HA_total,K_LG_total,K_LN_total, K_MB_total, K_MFB_total, K_MFR_total, K_DS_total))
 ```
 __calculating and ordering the genus from the most abundant__
 ```
