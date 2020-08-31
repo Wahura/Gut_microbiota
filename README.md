@@ -819,11 +819,14 @@ library(vegan)
 ordu = ordinate(physeq3, "PCoA", "unifrac", weighted=TRUE) #weighted unifrac
 plot_ordination(physeq3, ordu, color="species")+ geom_point(size=2) +
   scale_color_manual(values = myPalette)
-  
+```
+![weighted unifrac](weighted_unifrac.png)
+```
 ordu = ordinate(physeq3, "PCoA", "unifrac", weighted=FALSE) #unweighted unifrac
 plot_ordination(physeq3, ordu, color="species")+ geom_point(size=2) +
   scale_color_manual(values = myPalette)
-  
+```
+```
 ordu = ordinate(physeq3, "PCoA", "bray")
 plot_ordination(physeq3, ordu, color="species")+ geom_point(size=2) +
   scale_color_manual(values = myPalette)
