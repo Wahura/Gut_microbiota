@@ -382,6 +382,8 @@ dim(seqtab)
 table(nchar(getSequences(seqtab))) #establishing the number of samples distributed per length
 ```
 __Removing chimeras__
+
+Chimeras are common in amplicon sequencing since closely related sequences are amplified. They are believed to arise from incomplete extension during PCR. During PCR partially extended strands bind to a template derived from a different but similar sequence. since the error estimation model does not remove chimeras, our sequences still contain them. in this step, chimeric sequences are removed by comparing each inferred sequence to the others in the table, and removing those that can be reproduced by stitching together two or more abudant sequences. Although the exact numbers of chimeras vary substantially per experimental conditions, its common for chimeras to constitute a large chunk of inferred amplicon sequenc variants (ASVs), but only a small fraction of all reads.
 ```
 seqtab.nochim <- removeBimeraDenovo(seqtab, method="consensus", multithread=TRUE, verbose=TRUE)
 ```
@@ -414,6 +416,7 @@ head(track.nbr.reads)
 check whether you retain majority of the reads and there is no overly large drop associated with any single step. If a majority of the reads were removed as chimeras, one may need to revisit the removal of primers as ambigous reads in unremoved primers interfere with chimera identification. if majority of the reads fail to merge, the culprit could also be unremoved primers or biological length variation resulting in no overlap.
 
 __Taxonomic classification__
+
 The DADA2 package provides a native implementation of the naive Bayesian classifier method for taxonomic assignment. The assignTaxonomy function takes as input a set of sequences to ba classified. Dada2 provides the silva database for bacteria classification which can be [found here](http://benjjneb.github.io/dada2/training.html). The Silva SSU taxonomic training data formatted for DADA2 (Silva version 138) can be downloaded from [Zenodo](https://zenodo.org/record/3986799#.X0zzxNwzbIU).
 ```
 # download the required databases from zenodo
@@ -427,7 +430,6 @@ taxa <- addSpecies(taxa, "silva_species_assignment_v138.fa.gz") #classification 
 taxa.print <- taxa
 
 ```
-
 
 __Defining the rownames for the three table__
 ```
@@ -467,6 +469,8 @@ head(taxa.print)
 write.csv(taxa.print, file="ASVs_taxonomy.csv")
 ```
 __Converting taxonomy and feature tables to a phyloseq object__
+
+A phyloseq object organizes and synthesizes the different data types from a typical amplicon sequencing experiment into a single data object that can be easily manipulated. In this case we create a phyloseq object constituted of the feature table, taxonomy table and the sample metadata.
 ```
 library(phyloseq)
 TAX = tax_table(taxa.print) #taxonomy table
@@ -570,10 +574,8 @@ blast_out <- system2("/opt/apps/blast/2.10.0+/bin/blastn",
            into = colnames,
            sep = "\t",
            convert = TRUE)
-```
 
-__Removing .1-9 string to get the rightful accession numbers__
-```
+#Removing .1-9 string to get the rightful accession numbers
 blast_out$sacc <- gsub(".[.1-9]$", "", blast_out$sseqid)
 ```
 __Filling the full taxonomic classification from the blast results__
@@ -761,13 +763,15 @@ __Reading the FASTA sequences back to R__
 phylo_sequences <- readDNAStringSet("phylo_sequences.fasta")
 names(phylo_sequences)
 ```
-__Multiple sequence alignment__
+
+__Constructing the phylogenetic tree__
+
+Phylogenetic relatedness is used to inform downstream analysis especially in the case of phylogenetic related distances between microbial communities. sequence alignment in this case has been done using DECIPHER an R package useful in sequence alignments. The Phangorn R package has been used to construct the phylogenetic tree. Here we first construct a neighbour joining tree and then fit a GTR+G+I (Generalized time reversible with Gamma rate variation) maximum likelihood using the neighnour joining as a strating point. 
 ```
+#Multiple sequence alignment
 library(DECIPHER)
 alignment <- AlignSeqs(phylo_sequences, anchor = NA)
-```
-__Constructing the phylogenetic tree__
-```
+
 library(phangorn)
 phang.align <- phyDat(as(alignment, "matrix"), type="DNA")
 dm <- dist.ml(phang.align)
