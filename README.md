@@ -411,6 +411,8 @@ head(track.nbr.reads)
         HA44 225921   197446    197148    197216 196006  184123         81.5
         HA45 222641   189535    189193    189136 187394  172257         77.4
 
+check whether you retain majority of the reads and there is no overly large drop associated with any single step. If a majority of the reads were removed as chimeras, one may need to revisit the removal of primers as ambigous reads in unremoved primers interfere with chimera identification. if majority of the reads fail to merge, the culprit could also be unremoved primers or biological length variation resulting in no overlap.
+
 __Taxonomic classification__
 The DADA2 package provides a native implementation of the naive Bayesian classifier method for taxonomic assignment. The assignTaxonomy function takes as input a set of sequences to ba classified. Dada2 provides the silva database for bacteria classification which can be [found here](http://benjjneb.github.io/dada2/training.html). The Silva SSU taxonomic training data formatted for DADA2 (Silva version 138) can be downloaded from [Zenodo](https://zenodo.org/record/3986799#.X0zzxNwzbIU).
 ```
